@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { statusesByFamily } from "@/lib/status-definitions";
+import { useEscapeLayer } from "@/lib/escape-layer";
 
 const EASE = [0.22, 0.61, 0.36, 1] as const;
 
@@ -25,22 +26,16 @@ export default function StatusFilter({ value, onChange, counts }: Props) {
   const wrapper = useRef<HTMLDivElement>(null);
   const groups = statusesByFamily();
 
+  const close = useCallback(() => setOpen(false), []);
+  useEscapeLayer(open, close);
+
   useEffect(() => {
     if (!open) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
     function onPointerDown(event: PointerEvent) {
       if (!wrapper.current?.contains(event.target as Node)) setOpen(false);
     }
-
-    window.addEventListener("keydown", onKeyDown);
     window.addEventListener("pointerdown", onPointerDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("pointerdown", onPointerDown);
-    };
+    return () => window.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
   function toggle(code: string) {
@@ -61,7 +56,7 @@ export default function StatusFilter({ value, onChange, counts }: Props) {
         aria-expanded={open}
         aria-haspopup="true"
         className={[
-          "flex h-11 items-center gap-2 rounded-xl border px-3.5 text-sm shadow-float transition-colors duration-200 md:h-9 md:text-[13px]",
+          "ui-label flex h-12 items-center gap-2 rounded-2xl border px-4 text-sm shadow-float transition-colors duration-200 md:h-10 md:text-[13px]",
           active
             ? "border-transparent bg-ink text-cream"
             : "border-hairline bg-paper text-ink-soft hover:text-ink",

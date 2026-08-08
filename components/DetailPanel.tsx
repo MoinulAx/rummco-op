@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { motion, type PanInfo } from "framer-motion";
 import ApproximateFlag from "./ApproximateFlag";
 import StatusChip from "./StatusChip";
@@ -8,6 +7,7 @@ import { HcrLink } from "./ResponsibilityNote";
 import { openDirections } from "@/lib/directions";
 import { HCR_ASK_URL } from "@/lib/status-definitions";
 import { useMediaQuery } from "@/lib/hooks";
+import { useEscapeLayer } from "@/lib/escape-layer";
 import {
   boroughColor,
   boroughLabel,
@@ -31,7 +31,7 @@ function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
       <p className="eyebrow">{label}</p>
-      <p className="numeral mt-1 truncate text-[13px] text-ink">{value}</p>
+      <p className="numeral mt-1.5 truncate text-sm text-ink">{value}</p>
     </div>
   );
 }
@@ -45,13 +45,9 @@ export default function DetailPanel({ building, onClose, onExpand }: Props) {
   const isPhone = !useMediaQuery("(min-width: 768px)", true);
   const approximate = building.geocode_quality === "approximate";
 
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+  // Only closes when nothing is stacked on top of it, so dismissing a status
+  // explanation no longer takes the whole panel with it.
+  useEscapeLayer(true, onClose);
 
   /** Flick down or drag past a third of the sheet to dismiss. */
   function onDragEnd(_: unknown, info: PanInfo) {
@@ -94,8 +90,10 @@ export default function DetailPanel({ building, onClose, onExpand }: Props) {
         "border border-hairline bg-paper shadow-lift",
         // Phone: bottom sheet pinned to the viewport, rounded top only.
         "fixed inset-x-0 bottom-0 z-[800] flex max-h-[85svh] flex-col rounded-t-2xl border-x-0 border-b-0 landscape:max-h-[80svh]",
-        // Desktop: back to the floating right-hand panel.
-        "md:static md:z-auto md:max-h-none md:w-[368px] md:rounded-2xl md:border",
+        // Desktop: floating right-hand panel. It carries its own max height
+        // rather than growing without bound, which is what lets the action
+        // footer below pin to the panel instead of scrolling away with the body.
+        "md:static md:z-auto md:w-[384px] md:max-h-[calc(100dvh-11rem)] md:rounded-2xl md:border",
         "overflow-hidden",
       ].join(" ")}
     >
@@ -112,7 +110,7 @@ export default function DetailPanel({ building, onClose, onExpand }: Props) {
       />
 
       <div className="thin-scroll min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div className="safe-b-0 px-5 pt-3 pb-5 md:px-6 md:pt-5 md:pb-6">
+        <div className="px-5 pt-4 pb-6 md:px-6 md:pt-6 md:pb-7">
           <div className="flex items-start justify-between gap-3">
             <span
               className="inline-flex items-center gap-2 rounded-full px-2.5 py-1"
@@ -149,7 +147,7 @@ export default function DetailPanel({ building, onClose, onExpand }: Props) {
             </button>
           </div>
 
-          <h2 className="display-lg mt-2 text-ink md:mt-3">
+          <h2 className="display-lg mt-3.5 text-ink md:mt-4">
             {primaryAddress(building)}
           </h2>
 
@@ -168,22 +166,22 @@ export default function DetailPanel({ building, onClose, onExpand }: Props) {
           )}
 
           {approximate && (
-            <div className="mt-3.5">
+            <div className="mt-4">
               <ApproximateFlag />
             </div>
           )}
 
-          <div className="mt-4 grid grid-cols-3 gap-3 border-t border-hairline pt-4 md:mt-5">
+          <div className="mt-6 grid grid-cols-3 gap-4 border-t border-hairline pt-5">
             <Fact label="Zip" value={building.zip ?? "Not given"} />
             <Fact label="Block" value={building.block ?? "Not given"} />
             <Fact label="Lot" value={building.lot ?? "Not given"} />
           </div>
 
-          <div className="mt-3.5 border-t border-hairline pt-3.5">
+          <div className="mt-5 border-t border-hairline pt-5">
             <Fact label="BBL" value={building.bbl ?? "Not given"} />
           </div>
 
-          <div className="mt-4 border-t border-hairline pt-4">
+          <div className="mt-5 border-t border-hairline pt-5">
             <div className="flex items-baseline justify-between gap-2">
               <p className="eyebrow">Registration status</p>
               <p className="numeral text-[10px] text-ink-faint">
@@ -197,12 +195,12 @@ export default function DetailPanel({ building, onClose, onExpand }: Props) {
               </p>
             ) : (
               <>
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                <div className="mt-3 flex flex-wrap gap-2">
                   {building.statuses.map((code) => (
                     <StatusChip key={code} code={code} />
                   ))}
                 </div>
-                <p className="mt-2.5 text-[11px] leading-[1.45] text-ink-faint">
+                <p className="mt-3 text-[12px] leading-[1.5] text-ink-faint">
                   Tap a chip for what it appears to mean. All wording here is
                   provisional.
                 </p>
@@ -210,42 +208,50 @@ export default function DetailPanel({ building, onClose, onExpand }: Props) {
             )}
           </div>
 
-          <div className="mt-5 flex flex-col gap-2.5 md:mt-6">
-            <a
-              href={HCR_ASK_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3 text-[13px] font-medium text-cream transition-colors duration-200 hover:bg-[#463a2c] active:bg-[#5a4a38]"
-            >
-              Confirm an apartment with HCR
-              <span aria-hidden="true" className="text-cream/70">
-                &#8599;
-              </span>
-            </a>
-
-            <div className="flex gap-2.5">
-              <button
-                type="button"
-                onClick={() => onExpand(building)}
-                className="min-h-11 flex-1 rounded-xl border border-hairline bg-paper px-4 py-3 text-[13px] text-ink-soft transition-colors duration-200 hover:bg-cream hover:text-ink active:bg-cream-deep"
-              >
-                Full details
-              </button>
-              <button
-                type="button"
-                onClick={() => openDirections(building)}
-                className="min-h-11 rounded-xl border border-hairline bg-paper px-4 py-3 text-[13px] text-ink-soft transition-colors duration-200 hover:bg-cream hover:text-ink active:bg-cream-deep"
-              >
-                Directions
-              </button>
-            </div>
-          </div>
-
-          <p className="mt-4 border-t border-hairline pt-3.5 text-[11px] leading-[1.5] text-ink-faint">
+          <p className="mt-6 border-t border-hairline pt-4 text-[12px] leading-[1.55] text-ink-faint">
             Being listed here does not confirm that any specific apartment is
             stabilized, and being absent does not mean a building has none. Ask{" "}
             <HcrLink />.
           </p>
+        </div>
+      </div>
+
+      {/*
+        The actions live outside the scroller, pinned to the bottom of the
+        panel. Previously they sat at the end of the scrolling body, which meant
+        that on a 900px-tall screen the primary call to action was below the
+        fold and the reader had to discover it by scrolling a panel that did not
+        look scrollable. The one thing this app wants a reader to do should
+        never need finding.
+      */}
+      <div className="safe-b-0 shrink-0 border-t border-hairline bg-paper/95 px-5 pt-3.5 pb-4 backdrop-blur-sm md:px-6 md:pt-4 md:pb-5">
+        <a
+          href={HCR_ASK_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary w-full"
+        >
+          Confirm an apartment with HCR
+          <span aria-hidden="true" className="text-cream/70">
+            &#8599;
+          </span>
+        </a>
+
+        <div className="mt-2.5 flex gap-2.5">
+          <button
+            type="button"
+            onClick={() => onExpand(building)}
+            className="btn-secondary flex-1"
+          >
+            Full details
+          </button>
+          <button
+            type="button"
+            onClick={() => openDirections(building)}
+            className="btn-secondary flex-1"
+          >
+            Directions
+          </button>
         </div>
       </div>
     </motion.aside>

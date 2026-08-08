@@ -54,7 +54,7 @@ export default function DirectoryView({
       className="flex h-full flex-col overflow-hidden bg-cream"
     >
       <div className="safe-t safe-x mx-auto flex w-full max-w-[1200px] flex-1 flex-col overflow-hidden md:px-10">
-        <header className="flex shrink-0 flex-col gap-3 border-b border-hairline pb-5 md:gap-5 md:pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <header className="flex shrink-0 flex-col gap-4 border-b border-hairline pb-6 md:gap-6 md:pb-7 lg:flex-row lg:items-end lg:justify-between">
           <TitleBlock
             title={debouncedQuery.trim() ? "Search results" : "All buildings"}
             count={page.loading ? null : page.total}
@@ -74,7 +74,7 @@ export default function DirectoryView({
           </div>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col pt-4 md:pt-5">
+        <div className="flex min-h-0 flex-1 flex-col pt-5 md:pt-6">
           <BuildingListView
             rows={page.rows}
             total={page.total}
@@ -94,7 +94,7 @@ export default function DirectoryView({
           />
         </div>
 
-        <footer className="safe-b shrink-0 border-t border-hairline pt-4">
+        <footer className="safe-b shrink-0 border-t border-hairline pt-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-10">
             <ResponsibilityBlock className="max-w-[70ch]" />
             <p className="numeral shrink-0 text-[11px] text-ink-faint">

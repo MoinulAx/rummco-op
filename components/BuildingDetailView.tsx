@@ -51,7 +51,7 @@ function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
       <p className="eyebrow">{label}</p>
-      <p className="numeral mt-1 text-[13px] break-words text-ink">{value}</p>
+      <p className="numeral mt-1.5 text-sm break-words text-ink">{value}</p>
     </div>
   );
 }
@@ -75,7 +75,7 @@ export default function BuildingDetailView({
       {/* No photos in this dataset, so the header is a tinted plate carrying the
           borough colour and the address itself. */}
       <div
-        className="relative px-5 pt-6 pb-5 md:px-7 md:pt-7"
+        className="relative px-6 pt-7 pb-6 md:px-8 md:pt-9 md:pb-7"
         style={{
           background: `linear-gradient(152deg, ${color.soft} 0%, ${color.soft} 42%, #fdfbf7 128%)`,
         }}
@@ -118,7 +118,7 @@ export default function BuildingDetailView({
             </span>
           </span>
 
-          <h2 className="display-xl mt-3 max-w-[26ch] text-ink">
+          <h2 className="display-xl mt-4 max-w-[24ch] text-ink">
             {primaryAddress(building)}
           </h2>
 
@@ -131,7 +131,7 @@ export default function BuildingDetailView({
         </div>
       </div>
 
-      <div className="px-5 pt-5 pb-6 md:px-7 md:pt-6 md:pb-7">
+      <div className="px-6 pt-6 pb-7 md:px-8 md:pt-7 md:pb-8">
         {approximate && (
           <Section index={0} className="mb-5">
             <ApproximateFlag />
@@ -139,14 +139,14 @@ export default function BuildingDetailView({
         )}
 
         <Section index={1}>
-          <div className="grid grid-cols-2 gap-5 border-t border-hairline pt-5 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-6 border-t border-hairline pt-6 sm:grid-cols-4">
             <Fact label="Zip" value={building.zip ?? "Not given"} />
             <Fact label="Block" value={building.block ?? "Not given"} />
             <Fact label="Lot" value={building.lot ?? "Not given"} />
             <Fact label="BBL" value={building.bbl ?? "Not given"} />
           </div>
 
-          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
             <div>
               <p className="eyebrow">Street</p>
               <p className="mt-1 text-[13px] text-ink">{streetLine(building)}</p>
@@ -174,7 +174,7 @@ export default function BuildingDetailView({
           {/* Headings are title-cased for readability. This is the row exactly
               as the registration file has it, which is the string to quote when
               asking HCR about the building. */}
-          <div className="mt-5">
+          <div className="mt-6">
             <p className="eyebrow">As registered</p>
             <p className="numeral mt-1 text-[13px] break-words text-ink-soft">
               {rawPrimaryAddress(building)}
@@ -185,7 +185,7 @@ export default function BuildingDetailView({
           </div>
         </Section>
 
-        <Section index={2} className="mt-6 border-t border-hairline pt-5">
+        <Section index={2} className="mt-7 border-t border-hairline pt-6">
           <p className="eyebrow">
             Registration status ({building.statuses.length})
           </p>
@@ -195,7 +195,7 @@ export default function BuildingDetailView({
               This registration carries no status codes.
             </p>
           ) : (
-            <ul className="mt-3 space-y-3">
+            <ul className="mt-4 space-y-3.5">
               {building.statuses.map((code, i) => {
                 const definition = statusDefinition(code);
                 return (
@@ -208,7 +208,7 @@ export default function BuildingDetailView({
                       delay: 0.22 + i * 0.05,
                       ease: EASE,
                     }}
-                    className="rounded-xl border border-hairline-soft bg-cream/40 p-3.5"
+                    className="rounded-2xl border border-hairline-soft bg-cream/40 p-4"
                   >
                     <div className="flex flex-wrap items-center gap-2">
                       <StatusChip code={code} size="sm" />
@@ -234,12 +234,12 @@ export default function BuildingDetailView({
           )}
         </Section>
 
-        <Section index={3} className="mt-6 flex flex-wrap gap-2.5">
+        <Section index={3} className="mt-7 flex flex-wrap gap-3">
           <a
             href={HCR_ASK_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-3.5 text-[13px] font-medium text-cream transition-colors duration-200 hover:bg-[#463a2c] active:bg-[#5a4a38]"
+            className="btn-primary min-w-[16rem] flex-1"
           >
             Confirm an apartment with HCR
             <span aria-hidden="true" className="text-cream/70">
@@ -249,21 +249,21 @@ export default function BuildingDetailView({
           <button
             type="button"
             onClick={() => onViewOnMap(building)}
-            className="min-h-11 flex-1 rounded-xl border border-hairline bg-paper px-4 py-3.5 text-[13px] text-ink-soft transition-colors duration-200 hover:bg-cream hover:text-ink active:bg-cream-deep md:flex-none"
+            className="btn-secondary flex-1 md:flex-none"
           >
             View on map
           </button>
           <button
             type="button"
             onClick={() => openDirections(building)}
-            className="min-h-11 flex-1 rounded-xl border border-hairline bg-paper px-4 py-3.5 text-[13px] text-ink-soft transition-colors duration-200 hover:bg-cream hover:text-ink active:bg-cream-deep md:flex-none"
+            className="btn-secondary flex-1 md:flex-none"
           >
             Directions
           </button>
         </Section>
 
         <Section index={4}>
-          <ResponsibilityBlock className="mt-6 border-t border-hairline pt-5" />
+          <ResponsibilityBlock className="mt-7 border-t border-hairline pt-6" />
         </Section>
       </div>
     </div>

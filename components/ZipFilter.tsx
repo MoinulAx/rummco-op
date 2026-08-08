@@ -36,7 +36,7 @@ export default function ZipFilter({ value, onChange }: Props) {
   return (
     <label
       className={[
-        "flex h-11 shrink-0 items-center gap-2 rounded-xl border bg-paper px-3 shadow-float transition-shadow duration-200 focus-within:shadow-lift md:h-9",
+        "flex h-12 shrink-0 items-center gap-2.5 rounded-2xl border bg-paper px-4 shadow-float transition-shadow duration-200 focus-within:shadow-lift md:h-10",
         partial ? "border-caution/40" : "border-hairline",
       ].join(" ")}
     >
@@ -52,7 +52,7 @@ export default function ZipFilter({ value, onChange }: Props) {
         aria-label="Filter by ZIP code"
         aria-describedby={partial ? "zip-hint" : undefined}
         /* 16px on mobile is required, or iOS Safari zooms the page on focus. */
-        className="numeral w-[5.5ch] min-w-0 bg-transparent text-base text-ink placeholder:text-ink-faint focus:outline-none md:text-[13px]"
+        className="numeral w-[5.5ch] min-w-0 bg-transparent text-base text-ink placeholder:text-ink-faint focus:outline-none md:text-sm"
       />
       {draft.length > 0 && (
         <button

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   HCR_ASK_URL,
   statusDefinition,
   statusStyle,
 } from "@/lib/status-definitions";
+import { useEscapeLayer } from "@/lib/escape-layer";
 
 const EASE = [0.22, 0.61, 0.36, 1] as const;
 
@@ -30,22 +31,16 @@ export default function StatusChip({
   const wrapper = useRef<HTMLSpanElement>(null);
   const popoverId = useId();
 
+  const close = useCallback(() => setOpen(false), []);
+  useEscapeLayer(open, close);
+
   useEffect(() => {
     if (!open) return;
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
     function onPointerDown(event: PointerEvent) {
       if (!wrapper.current?.contains(event.target as Node)) setOpen(false);
     }
-
-    window.addEventListener("keydown", onKeyDown);
     window.addEventListener("pointerdown", onPointerDown);
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-      window.removeEventListener("pointerdown", onPointerDown);
-    };
+    return () => window.removeEventListener("pointerdown", onPointerDown);
   }, [open]);
 
   const compact = size === "sm";
@@ -60,7 +55,7 @@ export default function StatusChip({
         aria-label={`${definition.label} status. Show what this means.`}
         className={[
           "inline-flex items-center gap-1.5 rounded-full border transition-all duration-200",
-          compact ? "h-6 px-2 text-[11px]" : "h-7 px-2.5 text-[12px]",
+          compact ? "h-7 px-2.5 text-[11px]" : "h-8 px-3 text-[12px]",
           "hover:brightness-[0.98] active:scale-[0.98]",
         ].join(" ")}
         style={{
@@ -74,7 +69,9 @@ export default function StatusChip({
           className="size-1.5 shrink-0 rounded-full"
           style={{ background: style.base }}
         />
-        <span className="font-medium whitespace-nowrap">{definition.label}</span>
+        <span className="font-semibold tracking-[-0.005em] whitespace-nowrap">
+          {definition.label}
+        </span>
         {definition.verify && (
           <span
             aria-hidden="true"

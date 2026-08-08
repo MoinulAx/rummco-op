@@ -81,7 +81,7 @@ export default function ResponsibilityNote() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        className="flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition-colors duration-200 hover:bg-cream/60 md:px-3.5"
+        className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors duration-200 hover:bg-cream/60"
       >
         <span
           aria-hidden="true"
@@ -127,7 +127,7 @@ export default function ResponsibilityNote() {
             transition={{ duration: 0.26, ease: EASE }}
             className="overflow-hidden"
           >
-            <div className="border-t border-hairline px-3 py-3 md:px-3.5">
+            <div className="border-t border-hairline px-4 py-3.5">
               <ul className="space-y-1.5">
                 {RESPONSIBILITY_POINTS.map((point) => (
                   <li

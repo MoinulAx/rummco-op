@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import BuildingDetailSkeleton from "./BuildingDetailSkeleton";
+import MapSkeleton from "./MapSkeleton";
 import DetailPanel from "./DetailPanel";
 import DirectoryView from "./DirectoryView";
 import FilterBar from "./FilterBar";
@@ -14,6 +15,7 @@ import TitleBlock from "./TitleBlock";
 import type { View } from "./ViewToggle";
 import type { Viewport } from "./BuildingMap";
 import { useBuildingCounts, useDebounced, useMediaQuery, useViewportBuildings } from "@/lib/hooks";
+import { useEscapeLayer } from "@/lib/escape-layer";
 import { DEFAULT_ROW_LIMIT } from "@/lib/data/buildings";
 import { BOROUGH_BOUNDS, type Building } from "@/lib/buildings";
 import { NO_FILTERS, type Bounds, type Filters } from "@/lib/data/types";
@@ -22,11 +24,7 @@ import { NO_FILTERS, type Bounds, type Filters } from "@/lib/data/types";
 // server. `ssr: false` is only allowed from a Client Component, which this is.
 const BuildingMap = dynamic(() => import("./BuildingMap"), {
   ssr: false,
-  loading: () => (
-    <div className="flex h-full w-full items-center justify-center bg-cream">
-      <span className="eyebrow animate-pulse">Loading map</span>
-    </div>
-  ),
+  loading: () => <MapSkeleton />,
 });
 
 // The full record is only needed once a row is opened, so it ships as its own
@@ -37,7 +35,7 @@ const BuildingDetailView = dynamic(() => import("./BuildingDetailView"), {
 });
 
 /** Panel width on md+; also drives how far the map shifts when it opens. */
-const PANEL_WIDTH = 368;
+const PANEL_WIDTH = 384;
 
 /** Typing settles before the server is asked anything. */
 const QUERY_DEBOUNCE_MS = 260;
@@ -104,14 +102,7 @@ export default function BuildingExplorer() {
     setView("map");
   }, []);
 
-  useEffect(() => {
-    if (!detail) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setDetail(null);
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [detail]);
+  useEscapeLayer(detail !== null, closeDetail);
 
   const detailOverlay = (
     <AnimatePresence>
@@ -186,6 +177,50 @@ export default function BuildingExplorer() {
           zoomNudge={zoomNudge}
         />
 
+        <AnimatePresence>
+          {viewportRows.loading && (
+            <motion.span
+              key="viewport-progress"
+              aria-hidden="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="query-bar pointer-events-none absolute inset-x-0 top-0 z-[700] h-0.5"
+            />
+          )}
+        </AnimatePresence>
+
+        {/*
+          First load, or a filter change that empties the map, leaves the canvas
+          blank while the query runs. The 2px bar above is too quiet to carry
+          that on its own, so the map area says so directly. It only appears
+          when there is genuinely nothing drawn: during an ordinary pan the
+          previous rows stay put and this would just be noise.
+        */}
+        <AnimatePresence>
+          {viewportRows.loading && drawn === 0 && (
+            <motion.div
+              key="map-empty-loading"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              transition={{ duration: 0.3, delay: 0.25, ease: [0.22, 0.61, 0.36, 1] }}
+              className="pointer-events-none absolute inset-0 z-[550] flex items-center justify-center"
+            >
+              <span className="flex items-center gap-3 rounded-full border border-hairline bg-paper/95 px-5 py-3 shadow-float backdrop-blur-sm">
+                <span
+                  aria-hidden="true"
+                  className="query-bar h-1 w-16 rounded-full"
+                />
+                <span className="ui-label text-[13px] text-ink-soft">
+                  Loading buildings
+                </span>
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Canvas points cannot hold focus or be read out, so the count and the
             selection are announced here, and the list view is the keyboard
             path through the same data. */}
@@ -199,7 +234,7 @@ export default function BuildingExplorer() {
 
         {/* Floating chrome. The wrapper ignores pointer events so the map stays
             draggable. */}
-        <div className="safe-t safe-x pointer-events-none absolute inset-0 z-[600] flex flex-col gap-3 pb-3 md:gap-4 md:pb-6">
+        <div className="safe-t safe-x pointer-events-none absolute inset-0 z-[600] flex flex-col gap-3 pb-3 md:gap-5 md:pb-6">
           {/* Landscape phones only have ~375px of height, so the title and the
               controls share a row instead of stacking. */}
           <div className="flex min-h-0 flex-1 flex-col gap-2.5 landscape:flex-row landscape:items-start landscape:justify-between md:flex-row md:items-start md:justify-between md:gap-4">
@@ -207,7 +242,7 @@ export default function BuildingExplorer() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.34, ease: [0.22, 0.61, 0.36, 1] }}
-              className="pointer-events-auto self-start rounded-full border border-hairline bg-paper/95 px-4 py-2.5 shadow-float backdrop-blur-sm md:rounded-2xl md:px-5 md:py-4"
+              className="pointer-events-auto self-start rounded-full border border-hairline bg-paper/95 px-5 py-3 shadow-float backdrop-blur-sm md:rounded-2xl md:px-6 md:py-4"
             >
               <TitleBlock
                 title="Rent Stabilized NYC"
@@ -217,12 +252,13 @@ export default function BuildingExplorer() {
 
             {/* min-w-0 + flex-1 lets the chip rail shrink to the space left
                 beside the title instead of overflowing past the right edge. */}
-            <div className="thin-scroll pointer-events-auto flex max-h-full min-h-0 w-full flex-col items-end gap-2 overflow-y-auto landscape:min-w-0 landscape:flex-1 md:min-w-0 md:flex-none md:gap-2.5">
+            <div className="thin-scroll pointer-events-auto flex max-h-full min-h-0 w-full flex-col items-end gap-2.5 overflow-y-auto landscape:min-w-0 landscape:flex-1 md:min-w-0 md:flex-none md:gap-3">
               <FilterBar
                 view={view}
                 onViewChange={setView}
                 query={query}
                 onQueryChange={setQuery}
+                searching={query.trim() !== debouncedQuery.trim()}
                 filters={filters}
                 onFiltersChange={changeFilters}
                 counts={counts}
@@ -256,8 +292,16 @@ export default function BuildingExplorer() {
             </div>
           </div>
 
-          <div className="flex shrink-0 flex-col gap-2 md:flex-row md:items-end md:gap-3">
-            <div className="pointer-events-auto order-2 flex flex-col items-start gap-2 md:order-1">
+          {/*
+            On desktop the legend is absolutely positioned rather than a flex
+            item. It sits bottom-left, the detail panel sits right, and the two
+            never overlap horizontally, so letting the legend's 300px of height
+            set this row's height was squeezing the panel into a third of the
+            screen for no reason. Out of flow, this row is only as tall as the
+            responsibility bar, and the panel gets the rest.
+          */}
+          <div className="relative flex shrink-0 flex-col gap-2 md:flex-row md:items-end md:gap-3">
+            <div className="pointer-events-auto order-2 flex flex-col items-start gap-2 md:absolute md:bottom-0 md:left-0 md:order-1">
               <AnimatePresence>
                 {viewportRows.capped && (
                   <motion.div
@@ -267,9 +311,14 @@ export default function BuildingExplorer() {
                     transition={{ duration: 0.28, ease: [0.22, 0.61, 0.36, 1] }}
                     className="flex max-w-[280px] items-center gap-2.5 rounded-xl border border-hairline bg-paper/95 px-3 py-2 shadow-float backdrop-blur-sm"
                   >
+                    {/* Precise on purpose. The groups are built from the rows
+                        this viewport actually fetched, which is capped, so at
+                        city-wide zoom they are a partial view and must not
+                        claim otherwise. The header count is the real total. */}
                     <span className="text-[12px] leading-[1.4] text-ink-soft">
-                      More buildings here than fit one screen. Groups show all of
-                      them.
+                      This area holds more than the{" "}
+                      {DEFAULT_ROW_LIMIT.toLocaleString()} buildings loaded, so
+                      the groups below are partial. Zoom in for the full picture.
                     </span>
                     <button
                       type="button"
@@ -293,7 +342,7 @@ export default function BuildingExplorer() {
               <Legend counts={counts?.byBorough ?? null} inView={drawn} />
             </div>
 
-            <div className="pointer-events-none order-1 flex md:order-2 md:min-w-0 md:flex-1">
+            <div className="pointer-events-none order-1 flex md:order-2 md:ml-[228px] md:min-w-0 md:flex-1">
               <ResponsibilityNote />
             </div>
 

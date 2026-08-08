@@ -41,29 +41,37 @@ export default function FilterBar({
 
   return (
     <div className={`flex w-full flex-col gap-2 md:gap-2.5 ${align === "end" ? "md:items-end" : ""}`}>
-      {/* Wraps on phones so the search input gets its own full-width row below
-          the view toggle; stays inline from md up. */}
-      <div className={`flex w-full flex-nowrap items-center gap-2 md:w-auto md:gap-2.5 ${alignment}`}>
-        <ViewToggle value={view} onChange={onViewChange} />
-        <div className="min-w-0 flex-1 md:w-[300px] md:flex-none">
-          <SearchField
-            value={query}
-            onChange={onQueryChange}
-            busy={searching}
+      {/*
+        Two stacked rows on a phone, one row from lg up. The controls total
+        about 680px, which fits beside the title on any laptop, and collapsing
+        the bar from three rows to two is what stops the list header from
+        leaving a hole above the title.
+      */}
+      <div
+        className={`flex w-full flex-col gap-2 lg:w-auto lg:flex-row lg:items-center lg:gap-2.5 ${align === "end" ? "lg:justify-end" : ""}`}
+      >
+        <div className={`flex w-full flex-nowrap items-center gap-2 md:w-auto md:gap-2.5 ${alignment}`}>
+          <ViewToggle value={view} onChange={onViewChange} />
+          <div className="min-w-0 flex-1 md:w-[280px] md:flex-none">
+            <SearchField
+              value={query}
+              onChange={onQueryChange}
+              busy={searching}
+            />
+          </div>
+        </div>
+
+        <div className={`flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap md:gap-2.5 ${alignment}`}>
+          <ZipFilter
+            value={filters.zip}
+            onChange={(zip) => onFiltersChange({ ...filters, zip })}
+          />
+          <StatusFilter
+            value={filters.statuses}
+            onChange={(statuses) => onFiltersChange({ ...filters, statuses })}
+            counts={counts?.byStatus ?? null}
           />
         </div>
-      </div>
-
-      <div className={`flex w-full flex-wrap items-center gap-2 md:w-auto md:flex-nowrap md:gap-2.5 ${alignment}`}>
-        <ZipFilter
-          value={filters.zip}
-          onChange={(zip) => onFiltersChange({ ...filters, zip })}
-        />
-        <StatusFilter
-          value={filters.statuses}
-          onChange={(statuses) => onFiltersChange({ ...filters, statuses })}
-          counts={counts?.byStatus ?? null}
-        />
       </div>
 
       <BoroughChips

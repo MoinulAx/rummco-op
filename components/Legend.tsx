@@ -40,7 +40,7 @@ export default function Legend({ counts, inView }: Props) {
         type="button"
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        className="flex h-11 items-center gap-2 rounded-full border border-hairline bg-paper/95 px-4 shadow-float backdrop-blur-sm md:hidden"
+        className="ui-label flex h-11 items-center gap-2.5 rounded-full border border-hairline bg-paper/95 px-4 shadow-float backdrop-blur-sm md:hidden"
       >
         <span aria-hidden="true" className="flex items-center -space-x-1">
           {shown.map((borough) => (
@@ -69,23 +69,23 @@ export default function Legend({ counts, inView }: Props) {
 
       <div
         className={[
-          "w-[196px] overflow-hidden rounded-2xl border border-hairline bg-paper/95 shadow-float backdrop-blur-sm",
+          "w-[212px] overflow-hidden rounded-2xl border border-hairline bg-paper/95 shadow-float backdrop-blur-sm",
           "transition-all duration-300 ease-out",
           open
-            ? "max-h-[60vh] p-4 opacity-100"
+            ? "max-h-[60vh] p-5 opacity-100"
             : "max-h-0 border-transparent p-0 opacity-0",
           // Desktop: always open, never collapsed.
-          "md:max-h-none md:overflow-visible md:border-hairline md:p-4 md:opacity-100",
+          "md:max-h-none md:overflow-visible md:border-hairline md:p-5 md:opacity-100",
         ].join(" ")}
       >
         <div className="flex items-baseline justify-between gap-2">
           <p className="eyebrow">Borough</p>
           <p className="numeral text-[10px] text-ink-faint">
-            {inView.toLocaleString()} here
+            {inView.toLocaleString()} shown
           </p>
         </div>
 
-        <ul className="mt-2.5 space-y-2">
+        <ul className="mt-3.5 space-y-3">
           {shown.map((borough) => (
             <li key={borough} className="flex items-center gap-2.5">
               <span
@@ -94,7 +94,7 @@ export default function Legend({ counts, inView }: Props) {
                 style={{ background: BOROUGH_COLORS[borough].base }}
               />
               <span
-                className="flex-1 text-[13px]"
+                className="ui-label flex-1 text-[13px]"
                 style={{ color: BOROUGH_COLORS[borough].text }}
               >
                 {BOROUGH_LABELS[borough]}
@@ -113,7 +113,7 @@ export default function Legend({ counts, inView }: Props) {
           ))}
         </ul>
 
-        <div className="mt-3 space-y-2 border-t border-hairline pt-3">
+        <div className="mt-4 space-y-2.5 border-t border-hairline pt-4">
           <div className="flex items-center gap-2.5">
             <span
               aria-hidden="true"

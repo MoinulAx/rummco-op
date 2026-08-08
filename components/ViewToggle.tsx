@@ -20,7 +20,7 @@ export default function ViewToggle({
     <div
       role="group"
       aria-label="View"
-      className="flex h-11 shrink-0 items-center gap-0.5 rounded-xl border border-hairline bg-cream-deep/70 p-1 shadow-float"
+      className="flex h-12 shrink-0 items-center gap-0.5 rounded-2xl border border-hairline bg-cream-deep/70 p-1.5 shadow-float"
     >
       {OPTIONS.map((option) => {
         const active = value === option.id;
@@ -31,7 +31,7 @@ export default function ViewToggle({
             onClick={() => onChange(option.id)}
             aria-pressed={active}
             className={[
-              "relative rounded-[9px] px-3.5 py-1.5 text-[13px] whitespace-nowrap transition-colors duration-200",
+              "ui-label relative rounded-xl px-4 py-1.5 text-sm whitespace-nowrap transition-colors duration-200",
               active ? "text-ink" : "text-ink-soft hover:text-ink",
             ].join(" ")}
           >
@@ -39,7 +39,7 @@ export default function ViewToggle({
               <motion.span
                 layoutId="view-active-fill"
                 aria-hidden="true"
-                className="absolute inset-0 rounded-[9px] bg-paper shadow-[0_1px_2px_rgb(51_41_31_/_0.12)]"
+                className="absolute inset-0 rounded-xl bg-paper shadow-[0_1px_3px_rgb(51_41_31_/_0.14)]"
                 transition={{
                   type: "spring",
                   stiffness: 340,

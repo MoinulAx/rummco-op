@@ -94,38 +94,46 @@ body {
 }
 
 /* ── Type scale ──────────────────────────────────────────────────────────
-   Five deliberate steps. Fraunces carries display, Inter carries everything
-   read in sequence, and the mono face is reserved for numbers and labels so a
-   count never reflows as its digits change. */
+   Fraunces carries display, Inter carries everything read in sequence, and the
+   mono face is reserved for numbers and labels so a count never reflows as its
+   digits change.
+
+   Fraunces is loaded as a variable font, so display steps sit at 600 rather
+   than 400. At the sizes an address heading is set, 400 reads thin and
+   apologetic next to a saturated map; 600 with tighter tracking gives the page
+   an anchor. */
 .display-xl {
   font-family: var(--font-display);
-  font-size: clamp(1.75rem, 1.2rem + 2.2vw, 2.375rem);
-  line-height: 1.06;
-  letter-spacing: -0.02em;
-  font-weight: 400;
+  font-size: clamp(1.9375rem, 1.3rem + 2.4vw, 2.625rem);
+  line-height: 1.04;
+  letter-spacing: -0.032em;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 0, "WONK" 1;
 }
 
 .display-lg {
   font-family: var(--font-display);
-  font-size: clamp(1.375rem, 1.05rem + 1.3vw, 1.75rem);
-  line-height: 1.12;
-  letter-spacing: -0.015em;
-  font-weight: 400;
+  font-size: clamp(1.5rem, 1.1rem + 1.5vw, 1.9375rem);
+  line-height: 1.1;
+  letter-spacing: -0.028em;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 0, "WONK" 1;
 }
 
 .display-md {
   font-family: var(--font-display);
-  font-size: 1.0625rem;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
-  font-weight: 400;
+  font-size: 1.1875rem;
+  line-height: 1.18;
+  letter-spacing: -0.022em;
+  font-weight: 600;
 }
 
 /* Editorial eyebrow label: small, tracked-out, uppercase */
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.14em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-ink-faint);
 }
@@ -133,7 +141,100 @@ body {
 .numeral {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.01em;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+/* Interface labels: chips, buttons, toggles. Inter at 500 keeps a 13px control
+   legible against a busy basemap without shouting. */
+.ui-label {
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+
+/* Primary action. Heavier and larger than the reference's, because on this map
+   the HCR link is the one thing a reader is meant to leave with. */
+.btn-primary {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.875rem;
+  background: var(--color-ink);
+  padding: 0.75rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-cream);
+  transition:
+    background 200ms var(--ease-calm),
+    transform 200ms var(--ease-calm);
+}
+
+.btn-primary:hover {
+  background: #463a2c;
+}
+
+.btn-primary:active {
+  background: #5a4a38;
+  transform: scale(0.99);
+}
+
+.btn-secondary {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-hairline);
+  background: var(--color-paper);
+  padding: 0.75rem 1.125rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-ink-soft);
+  transition:
+    background 200ms var(--ease-calm),
+    color 200ms var(--ease-calm),
+    transform 200ms var(--ease-calm);
+}
+
+.btn-secondary:hover {
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+.btn-secondary:active {
+  background: var(--color-cream-deep);
+  transform: scale(0.99);
+}
+
+/* Edge fade on the horizontal chip rail, so a rail that runs past the screen
+   reads as scrollable rather than as a chip that got cut in half. */
+.rail-fade {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 14px,
+    #000 calc(100% - 26px),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 14px,
+    #000 calc(100% - 26px),
+    transparent 100%
+  );
+}
+
+@media (min-width: 768px) {
+  .rail-fade {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
 }
 
 /* Safe-area helpers. Paired with viewportFit:"cover" in app/layout.tsx. */
@@ -315,6 +416,16 @@ body {
 .leaflet-control-zoom a:hover {
   background: var(--color-cream-deep) !important;
   color: var(--color-ink) !important;
+}
+
+/* Leaflet ships its control panes at z-index 1000, which beat every piece of
+   this app's own chrome: on a phone the zoom buttons and the attribution drew
+   straight through the detail sheet. The controls still need to sit above the
+   tiles and the canvas (those live in the 200-400 band), so 500 puts them
+   between the map and the chrome, where they belong. */
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 500;
 }
 
 /* Keep both bottom controls clear of the home indicator, and of the

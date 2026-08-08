@@ -37,18 +37,18 @@ export default function BoroughChips({ value, onChange, counts }: Props) {
   return (
     // Mobile: one non-wrapping rail that scrolls with momentum, so the chips can
     // never wrap into the map or get clipped by the title card.
-    <div className="touch-rail w-full max-w-full overflow-x-auto md:w-auto md:max-w-none md:overflow-visible">
+    <div className="touch-rail rail-fade w-full max-w-full overflow-x-auto md:w-auto md:max-w-none md:overflow-visible">
       <div
         role="group"
         aria-label="Filter by borough"
-        className="flex w-max items-center gap-1.5 md:w-auto md:flex-wrap md:justify-end"
+        className="flex w-max items-center gap-2 md:w-auto md:flex-wrap md:justify-end"
       >
         <button
           type="button"
           onClick={() => onChange([])}
           aria-pressed={allActive}
           className={[
-            "relative flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm shadow-float transition-colors duration-200 md:h-9 md:px-3.5 md:text-[13px]",
+            "ui-label relative flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm shadow-float transition-colors duration-200 md:h-10 md:px-4 md:text-[13px]",
             allActive
               ? "border-transparent bg-ink text-cream"
               : "border-hairline bg-paper text-ink-soft hover:text-ink",
@@ -79,7 +79,7 @@ export default function BoroughChips({ value, onChange, counts }: Props) {
               aria-pressed={active}
               className={[
                 // 44px tap target on touch, back to 36px on desktop.
-                "relative flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm shadow-float md:h-9 md:px-3.5 md:text-[13px]",
+                "ui-label relative flex h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm shadow-float md:h-10 md:px-4 md:text-[13px]",
                 "transition-colors duration-200",
                 active
                   ? "border-transparent text-cream"

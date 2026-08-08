@@ -38,7 +38,7 @@ export default function SearchField({
 
   return (
     <div className="relative w-full">
-      <label className="group flex h-11 w-full items-center gap-2.5 rounded-xl border border-hairline bg-paper px-3.5 shadow-float transition-shadow duration-200 focus-within:shadow-lift">
+      <label className="group flex h-12 w-full items-center gap-2.5 rounded-2xl border border-hairline bg-paper px-4 shadow-float transition-shadow duration-200 focus-within:shadow-lift">
         <svg
           viewBox="0 0 16 16"
           aria-hidden="true"
@@ -74,7 +74,7 @@ export default function SearchField({
           placeholder={placeholder}
           aria-label="Search buildings by street"
           /* 16px on mobile is required, or iOS Safari zooms the page on focus. */
-          className="min-w-0 flex-1 bg-transparent text-base text-ink placeholder:text-ink-faint focus:outline-none md:text-sm [&::-webkit-search-cancel-button]:appearance-none"
+          className="ui-label min-w-0 flex-1 bg-transparent text-base text-ink placeholder:font-normal placeholder:text-ink-faint focus:outline-none md:text-sm [&::-webkit-search-cancel-button]:appearance-none"
         />
 
         <kbd className="hidden shrink-0 font-mono text-[10px] tracking-wider text-ink-faint sm:block">

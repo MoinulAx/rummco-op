@@ -1,0 +1,482 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Paper palette ────────────────────────────────────────────────────── */
+  --color-cream: #f7f2e9;
+  --color-cream-deep: #efe7d9;
+  --color-paper: #fdfbf7;
+  --color-ink: #33291f;
+  --color-ink-soft: #6b5f52;
+  --color-ink-faint: #9a8f82;
+  --color-hairline: #e4dbcb;
+  --color-hairline-soft: #ece4d6;
+
+  /* ── Borough ──────────────────────────────────────────────────────────
+     `base` is the marker fill: a graphical object, so 3:1 against cream is
+     the bar and all five clear it. `text` is the darkened variant used
+     wherever the colour carries a label, and every one clears 4.5:1 against
+     cream, paper and its own soft tint. `npm run check:contrast` proves it. */
+  --color-manhattan: #2f7d5f;
+  --color-manhattan-soft: #dcebe1;
+  --color-manhattan-text: #2a7156;
+  --color-bronx: #c2632e;
+  --color-bronx-soft: #f4e2d5;
+  --color-bronx-text: #9d5025;
+  --color-brooklyn: #6b5ba8;
+  --color-brooklyn-soft: #e4e0f1;
+  --color-brooklyn-text: #63529d;
+  --color-queens: #2e6e9e;
+  --color-queens-soft: #d8e6f0;
+  --color-queens-text: #2b6894;
+  --color-statenisland: #b03a5b;
+  --color-statenisland-soft: #f6dde3;
+  --color-statenisland-text: #a93757;
+
+  /* ── Status families ──────────────────────────────────────────────────
+     Nineteen codes would be nineteen indistinguishable hues at chip size, so
+     colour carries the family and the label carries the code. */
+  --color-status-dwelling: #7a5b34;
+  --color-status-dwelling-soft: #efe4d3;
+  --color-status-tax: #4a6d34;
+  --color-status-tax-soft: #e2ebd8;
+  --color-status-finance: #2b6470;
+  --color-status-finance-soft: #d9e9ec;
+  --color-status-conversion: #8a4a6b;
+  --color-status-conversion-soft: #f0dfe8;
+
+  /* Caution accent, used only for the approximate-location flag. */
+  --color-caution: #8e5e11;
+  --color-caution-soft: #f6e9cf;
+
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /* Four steps of depth rather than the reference's three, so a popover can
+     sit above a panel without either flattening. */
+  --shadow-hairline: 0 1px 0 rgb(51 41 31 / 0.04);
+  --shadow-float:
+    0 1px 2px rgb(51 41 31 / 0.04), 0 8px 24px -6px rgb(51 41 31 / 0.14);
+  --shadow-lift:
+    0 2px 4px rgb(51 41 31 / 0.05), 0 18px 40px -10px rgb(51 41 31 / 0.2);
+  --shadow-pop:
+    0 3px 6px rgb(51 41 31 / 0.06), 0 26px 56px -12px rgb(51 41 31 / 0.26);
+  --shadow-pin:
+    0 1px 2px rgb(51 41 31 / 0.28), 0 4px 10px -2px rgb(51 41 31 / 0.3);
+
+  --ease-calm: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* dvh tracks the shrinking/growing mobile URL bar so the map never leaves a
+     dead strip at the bottom. */
+  height: 100dvh;
+  /* Stops iOS from inflating type in landscape. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+/* One focus treatment for the whole app, keyboard only. */
+:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ── Type scale ──────────────────────────────────────────────────────────
+   Five deliberate steps. Fraunces carries display, Inter carries everything
+   read in sequence, and the mono face is reserved for numbers and labels so a
+   count never reflows as its digits change. */
+.display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 1.2rem + 2.2vw, 2.375rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(1.375rem, 1.05rem + 1.3vw, 1.75rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  font-weight: 400;
+}
+
+.display-md {
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+/* Editorial eyebrow label: small, tracked-out, uppercase */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-ink-faint);
+}
+
+.numeral {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+/* Safe-area helpers. Paired with viewportFit:"cover" in app/layout.tsx. */
+.safe-t {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+.safe-b {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.safe-x {
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+}
+.safe-b-0 {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (min-width: 768px) {
+  .safe-t {
+    padding-top: max(1.5rem, env(safe-area-inset-top));
+  }
+  .safe-b {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+  .safe-x {
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+  }
+}
+
+/* Horizontal chip rail: momentum scrolling, no visible scrollbar. */
+.touch-rail {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-padding-inline: 0.75rem;
+}
+
+.touch-rail::-webkit-scrollbar {
+  display: none;
+}
+
+/* Slim scrollbar for the long scrollers (list view, status popover). */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-hairline) transparent;
+}
+
+.thin-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-hairline);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* Grab handle on the mobile bottom sheet. */
+.sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 9999px;
+  background: var(--color-hairline);
+}
+
+/* Skeleton placeholder used by lazy-loaded views and every pending list row. */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-cream-deep);
+}
+
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(253 251 247 / 0.72) 50%,
+    transparent 100%
+  );
+  animation: shimmer-sweep 1.4s var(--ease-calm) infinite;
+}
+
+@keyframes shimmer-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Thin progress hairline shown while a viewport fetch is in flight. */
+.query-bar {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-hairline-soft);
+}
+
+.query-bar::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  width: 38%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-ink-faint),
+    transparent
+  );
+  animation: query-sweep 1.15s var(--ease-calm) infinite;
+}
+
+@keyframes query-sweep {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(360%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer::after,
+  .query-bar::after {
+    animation: none;
+  }
+}
+
+/* ── Leaflet overrides ──────────────────────────────────────────────────── */
+.leaflet-container {
+  background: var(--color-cream);
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+/* Mute CARTO Voyager toward the warm paper palette */
+.leaflet-tile-pane {
+  filter: saturate(0.78) sepia(0.13) brightness(1.02) contrast(0.96);
+}
+
+.leaflet-control-attribution {
+  background: rgb(253 251 247 / 0.82) !important;
+  color: var(--color-ink-faint) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 9px !important;
+  letter-spacing: 0.03em;
+  border-radius: 6px 0 0 0;
+  padding: 2px 6px !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--color-ink-soft) !important;
+}
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: var(--shadow-float) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.leaflet-control-zoom a {
+  background: var(--color-paper) !important;
+  color: var(--color-ink-soft) !important;
+  border-bottom-color: var(--color-hairline) !important;
+  width: 32px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-size: 17px !important;
+  font-weight: 400 !important;
+  transition:
+    background 180ms var(--ease-calm),
+    color 180ms var(--ease-calm);
+}
+
+.leaflet-control-zoom a:hover {
+  background: var(--color-cream-deep) !important;
+  color: var(--color-ink) !important;
+}
+
+/* Keep both bottom controls clear of the home indicator, and of the
+   responsibility bar that runs along the bottom of the map. */
+.leaflet-bottom.leaflet-right {
+  margin-bottom: calc(env(safe-area-inset-bottom) + var(--map-bottom-gutter, 0px));
+  margin-right: env(safe-area-inset-right);
+}
+
+.leaflet-bottom.leaflet-left {
+  margin-bottom: calc(env(safe-area-inset-bottom) + var(--map-bottom-gutter, 0px));
+  margin-left: env(safe-area-inset-left);
+}
+
+/* Touch devices *and* phone-width screens get 44px zoom buttons and a shorter
+   attribution line. Width is included because pointer:coarse alone misses
+   small windows and desktop devtools emulation. */
+@media (pointer: coarse), (max-width: 767px) {
+  .leaflet-control-zoom a {
+    width: 44px !important;
+    height: 44px !important;
+    line-height: 44px !important;
+    font-size: 20px !important;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 8px !important;
+    max-width: 58vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* ── The selected pin ────────────────────────────────────────────────────
+   Every other point on the map is drawn into the shared canvas. This is the
+   only DOM marker, which is what keeps 2,000 buildings cheap. */
+.rs-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.rs-marker:focus {
+  outline: none;
+}
+
+.rs-marker:focus-visible {
+  outline: 2px solid var(--color-ink);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* Hover label: paper card, no arrow, matching the floating-card language. */
+.rs-tooltip.leaflet-tooltip {
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  border-radius: 10px;
+  box-shadow: var(--shadow-float);
+  padding: 7px 11px;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+.rs-tooltip.leaflet-tooltip::before {
+  display: none;
+}
+
+.rs-pin {
+  position: relative;
+  width: 26px;
+  height: 34px;
+}
+
+.rs-pin__shape {
+  display: block;
+  width: 26px;
+  height: 34px;
+  filter: drop-shadow(0 2px 3px rgb(51 41 31 / 0.32));
+  transform-origin: 13px 33px;
+  transition:
+    transform 260ms var(--ease-calm),
+    filter 260ms var(--ease-calm);
+}
+
+.rs-marker:hover .rs-pin__shape {
+  transform: translateY(-3px) scale(1.08);
+  filter: drop-shadow(0 6px 9px rgb(51 41 31 / 0.3));
+}
+
+.rs-pin[data-selected="true"] .rs-pin__shape {
+  transform: translateY(-4px) scale(1.14);
+  filter: drop-shadow(0 8px 12px rgb(51 41 31 / 0.32));
+}
+
+/* Soft pulse ring, centred on the pin head. */
+.rs-pin__pulse {
+  position: absolute;
+  left: 13px;
+  top: 13px;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border-radius: 9999px;
+  background: var(--pin);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rs-pin[data-selected="true"] .rs-pin__pulse {
+  animation: rs-pulse 2.4s var(--ease-calm) infinite;
+}
+
+/* A second, dashed ring marks a building whose coordinates are approximate,
+   so the pin itself says "somewhere around here". */
+.rs-pin__approx {
+  position: absolute;
+  left: 13px;
+  top: 13px;
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border-radius: 9999px;
+  border: 1.5px dashed var(--pin);
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+@keyframes rs-pulse {
+  0% {
+    transform: translateY(-4px) scale(0.6);
+    opacity: 0.4;
+  }
+  70% {
+    transform: translateY(-4px) scale(2.6);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(-4px) scale(2.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-pin[data-selected="true"] .rs-pin__pulse {
+    animation: none;
+    opacity: 0.18;
+    transform: translateY(-4px) scale(1.9);
+  }
+  .rs-pin__shape {
+    transition: none;
+  }
+}
+
+/* Lifts Leaflet's bottom controls clear of the responsibility bar, which runs
+   full width on phones and sits to the left of the zoom control on desktop. */
+.map-shell {
+  --map-bottom-gutter: 68px;
+}
+
+@media (min-width: 768px) {
+  .map-shell {
+    --map-bottom-gutter: 0px;
+  }
+}

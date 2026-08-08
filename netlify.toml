@@ -1,0 +1,31 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Netlify's build image supplies this plugin for Next.js sites; it wires up
+# the App Router, image optimisation, and serverless handlers.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  # Next 16 requires >= 20.9
+  NODE_VERSION = "22"
+
+# The two Supabase variables are the only environment this app reads, and both
+# are optional: with neither set the build ships the mock adapter and the site
+# still works. Set them in Site configuration > Environment variables when the
+# real database should be used. Both are NEXT_PUBLIC_, so both are inlined into
+# the client bundle. The anon key is safe there because the `buildings` table's
+# RLS policy grants nothing but SELECT.
+#
+#   NEXT_PUBLIC_SUPABASE_URL
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY
+#
+# Never put a service-role key here. It would end up in the browser.
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"

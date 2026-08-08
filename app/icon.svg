@@ -1,0 +1,11 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <rect width="32" height="32" rx="7.5" fill="#33291F" />
+  <!-- Walk-up: stoop, facade, window grid. Chunky so it survives 16px. -->
+  <path d="M7.4 10.6h17.2v14.2a1 1 0 0 1-1 1H8.4a1 1 0 0 1-1-1z" fill="#F7F2E9" />
+  <path d="M16 5.2l9.6 5.1a0.9 0.9 0 0 1-0.4 1.7H6.8a0.9 0.9 0 0 1-0.4-1.7z" fill="#F7F2E9" />
+  <rect x="9.9" y="13.4" width="3.5" height="3.5" rx="0.9" fill="#33291F" />
+  <rect x="18.6" y="13.4" width="3.5" height="3.5" rx="0.9" fill="#33291F" />
+  <rect x="9.9" y="19.1" width="3.5" height="3.5" rx="0.9" fill="#33291F" />
+  <!-- The one marked unit, in the Bronx accent. -->
+  <rect x="18.6" y="19.1" width="3.5" height="6.7" rx="0.9" fill="#C2632E" />
+</svg>

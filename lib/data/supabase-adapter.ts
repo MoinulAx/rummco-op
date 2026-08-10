@@ -26,9 +26,9 @@ import {
  * anon, so the anon key is all this needs, and nothing here writes.
  *
  * Two Postgres functions are assumed, `search_buildings` and
- * `get_building_counts`. Their expected bodies are checked in under
- * /supabase/rpc; until they exist each call falls back to plain queries, so the
- * app is usable either way.
+ * `get_building_counts`. Both are created by the migrations in
+ * /supabase/migrations, and /supabase/README.md covers the setup. Until they
+ * exist each call falls back to plain queries, so the app is usable either way.
  */
 
 const SELECT_LIST = BUILDING_COLUMNS.join(", ");
@@ -106,7 +106,7 @@ function normaliseBounds(bounds: Bounds): Bounds {
   };
 }
 
-/** RPC parameter names, matching /supabase/rpc/*.sql. */
+/** RPC parameter names, matching /supabase/migrations/*.sql. */
 function rpcArgs(filters: Filters) {
   const zip = filters.zip.trim();
   return {

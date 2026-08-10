@@ -5,7 +5,8 @@
  * PostgREST builders without casts, and what makes a typo in a column name a
  * compile error rather than a runtime 400.
  *
- * Mirrors the `buildings` table and the two functions in /supabase/rpc.
+ * Mirrors the `buildings` table and the two functions created by the
+ * migrations in /supabase/migrations.
  */
 
 export type BuildingRow = {

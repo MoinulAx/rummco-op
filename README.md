@@ -62,19 +62,30 @@ The full dataset is never bundled and never hardcoded into a TS module. The
 fixture exists so the loading, empty, capped and error states can be exercised
 in development, and it is labelled as fake at the top of the file.
 
-### Postgres functions
+### Database
 
-The Supabase adapter prefers two RPCs and falls back cleanly if they are absent
+`supabase/` holds everything needed to stand the database up: three migrations,
+an import guide and a post-import check script. See
+[supabase/README.md](supabase/README.md).
+
+| Migration                                | What it does                                      |
+| ---------------------------------------- | ------------------------------------------------- |
+| `20260810000100_buildings_table.sql`     | `pg_trgm`, the `buildings` table, six indexes, grants, RLS |
+| `20260810000200_search_buildings.sql`    | `search_buildings()`, trigram search and list paging |
+| `20260810000300_get_building_counts.sql` | `get_building_counts()`, the totals behind every counter |
+
+The adapter prefers both functions and falls back cleanly if either is absent
 (PostgREST reports `PGRST202`, which the adapter latches so it stops retrying).
-Both expected bodies are checked in, with a TODO on each:
+`search_buildings` falls back to `ilike` on `street`; `get_building_counts`
+falls back to 25 count-only queries.
 
-- `supabase/rpc/search_buildings.sql`: trigram ranking with `similarity()`,
-  returning the display columns plus `score` and `total_count`.
-  Fallback: `ilike` on `street` with an exact count header.
-- `supabase/rpc/get_building_counts.sql`: one json object with `total`,
-  `by_borough` and `by_status` (from `unnest(statuses)`).
-  Fallback: 25 count-only queries, which works but is exactly why the RPC is
-  wanted.
+The migrations were applied to a real PostgreSQL 16 loaded with 50,879 rows
+before being committed, on a clean database and twice on top of themselves.
+Doing that caught three things a review would not have: `SET LOCAL` is silently
+ignored outside a transaction, so `gin_trgm_ops` would not resolve; `anon` needs
+a table `GRANT` as well as an RLS policy, or every read is "permission denied";
+and `anon` needs `USAGE` on the schema holding `pg_trgm`, or search fails with
+what looks like a missing extension.
 
 ### Environment
 
@@ -250,9 +261,10 @@ lib/
     database.types.ts  hand-written schema types for the client generic
 scripts/
   check-contrast.mjs   WCAG check, exits non-zero on failure
-supabase/rpc/
-  search_buildings.sql       TODO: create in Supabase
-  get_building_counts.sql    TODO: create in Supabase
+supabase/
+  README.md                  setup, CSV import, env vars, measured timings
+  verify.sql                 post-import sanity checks, read-only
+  migrations/                three files, run in filename order
 ```
 
 ## What was removed from the reference
@@ -279,5 +291,16 @@ office marker and every office concept; per-site photos (`SitePhoto`,
   adapter was exercised against a PostgREST-shaped server in both modes: with
   the RPCs present, and with them returning `PGRST202` so the fallbacks run.
 
-Not verified: the adapter has not been run against a real Supabase project, and
-the two SQL files have not been executed. Both are waiting on the database.
+- The migrations run clean on PostgreSQL 16, are idempotent across repeated
+  applications, and were exercised with 50,879 rows loaded. `anon` can read and
+  cannot insert, update or delete. Both functions return the exact shapes the
+  adapter parses, `total_count` matches an independent count, and three
+  consecutive pages of browse mode return 150 rows with 150 distinct ids, so
+  paging neither repeats nor skips.
+- Measured with the full row count: viewport box ~3ms, viewport plus filters
+  ~6ms, browse ~37ms, street search ~60ms, counts ~92ms.
+
+Not verified: none of this has run against a hosted Supabase project, only
+against a local PostgreSQL 16 with the same roles, grants and RLS. The CSV
+import has been tested against a small sample shaped like the awkward case,
+not against the real files.
